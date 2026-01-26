@@ -30,10 +30,10 @@ module BetterRspecResult
         end
 
         def answer
-          # If q was pressed, return :back
+          # If q was pressed, return :back value
           if @q_pressed
             back_choice = choices.find { |c| c.value == :back }
-            return back_choice if back_choice
+            return back_choice.value if back_choice
           end
           # Otherwise, use default behavior
           super
