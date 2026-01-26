@@ -20,7 +20,7 @@ module BetterRspecResult
             back_index = choices.find_index { |c| c.value == :back }
             if back_index
               @active = back_index
-              @done = true
+              keyreturn(event)
             end
           else
             super
