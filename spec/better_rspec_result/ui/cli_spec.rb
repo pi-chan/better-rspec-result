@@ -93,6 +93,32 @@ RSpec.describe BetterRspecResult::UI::CLI do
       end
     end
 
+    context "with --copy-failures option" do
+      it "copies failure locations to clipboard" do
+        storage.save(sample_result_data)
+        allow(Clipboard).to receive(:copy).and_return(true)
+
+        expect { described_class.start(["--copy-failures"]) }
+          .to output(/Copied 1 failure location/).to_stdout
+      end
+
+      it "shows no failures message when all tests pass" do
+        passing_data = sample_result_data.merge(
+          "summary" => sample_result_data["summary"].merge("failure_count" => 0),
+          "examples" => sample_result_data["examples"].map { |ex| ex.merge("status" => "passed") }
+        )
+        storage.save(passing_data)
+
+        expect { described_class.start(["--copy-failures"]) }
+          .to output(/No failed examples/).to_stdout
+      end
+
+      it "shows no results message when empty" do
+        expect { described_class.start(["--copy-failures"]) }
+          .to output(/No results found/).to_stdout
+      end
+    end
+
     context "with --help option" do
       it "shows help message" do
         expect { described_class.start(["--help"]) }.to output(/Usage: brr/).to_stdout.and raise_error(SystemExit)

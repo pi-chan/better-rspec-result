@@ -3,6 +3,7 @@
 require "tty-prompt"
 require_relative "components/color_scheme"
 require_relative "components/formatter"
+require_relative "detail_view"
 
 module BetterRspecResult
   module UI
@@ -42,30 +43,13 @@ module BetterRspecResult
       end
 
       def show_failure_detail(example)
-        details = []
-        details << ""
-        details << @color_scheme.failed("=" * 80)
-        details << @color_scheme.highlight(example["full_description"])
-        details << @color_scheme.failed("=" * 80)
-        details << ""
-
-        location = @formatter.format_file_location(
-          example["file_path"],
-          example["line_number"]
+        detail_view = DetailView.new(
+          example: example,
+          prompt: @prompt,
+          color_scheme: @color_scheme,
+          formatter: @formatter
         )
-        details << "Location: #{@color_scheme.dim(location)}"
-        details << ""
-
-        if example["exception"]
-          details << "Error Class: #{@color_scheme.failed(example["exception"]["class"])}"
-          details << "Message: #{example["exception"]["message"]}"
-          details << ""
-        end
-
-        details << @color_scheme.dim("Press any key to continue...")
-
-        @prompt.say(details.join("\n"))
-        @prompt.keypress
+        detail_view.show
       end
 
       private

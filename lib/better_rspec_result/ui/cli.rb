@@ -3,6 +3,7 @@
 require "optparse"
 require_relative "../storage/json_storage"
 require_relative "../version"
+require_relative "clipboard"
 
 module BetterRspecResult
   module UI
@@ -26,6 +27,8 @@ module BetterRspecResult
               clean_results
             elsif @options[:list]
               list_results
+            elsif @options[:copy_failures]
+              copy_failures
             elsif @options[:plain]
               show_latest_result
             else
@@ -66,6 +69,10 @@ module BetterRspecResult
 
               opts.on("-l", "--list", "List all stored results") do
                 @options[:list] = true
+              end
+
+              opts.on("--copy-failures", "Copy all failure locations to clipboard") do
+                @options[:copy_failures] = true
               end
 
               opts.on("-h", "--help", "Show this help message") do
@@ -121,6 +128,41 @@ module BetterRspecResult
             end
 
             display_result(result)
+          end
+
+          def copy_failures
+            result = @storage.latest_result
+            unless result
+              puts "No results found in #{@storage.storage_dir}"
+              puts "Run RSpec with --format BetterRspecResult::Formatter to save results"
+              return
+            end
+
+            failed_examples = result.failed_examples
+            if failed_examples.empty?
+              puts "No failed examples in the latest result"
+              return
+            end
+
+            clipboard = Clipboard.new
+            copy_result = clipboard.copy_failure_locations(failed_examples)
+
+            if copy_result[:success]
+              if copy_result[:method] == :clipboard
+                puts "✓ Copied #{failed_examples.size} failure location(s) to clipboard:"
+              else
+                puts "⚠ Clipboard unavailable, saved #{failed_examples.size} failure location(s) to:"
+                puts "  #{copy_result[:file_path]}"
+              end
+            else
+              puts "✗ Failed to copy: #{copy_result[:message]}"
+              return
+            end
+
+            puts
+            failed_examples.each do |example|
+              puts "  #{example['file_path']}:#{example['line_number']}"
+            end
           end
 
           def display_result(result)

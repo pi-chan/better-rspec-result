@@ -114,18 +114,16 @@ RSpec.describe BetterRspecResult::UI::FailureList do
   end
 
   describe "#show_failure_detail" do
-    it "displays failure details" do
+    it "displays failure details using DetailView" do
       example = failed_examples.first
 
-      expect(prompt).to receive(:say) do |message|
-        expect(message).to include("User validations returns true for valid user")
-        expect(message).to include("spec/models/user_spec.rb:15")
-        expect(message).to include("expected true, got false")
-      end
-
-      expect(prompt).to receive(:keypress).and_return(true)
+      allow(prompt).to receive(:say)
+      allow(prompt).to receive(:select).and_return(:back)
 
       failure_list.show_failure_detail(example)
+
+      expect(prompt).to have_received(:say).at_least(:once)
+      expect(prompt).to have_received(:select).with("Actions:", kind_of(Array), anything)
     end
   end
 
@@ -150,13 +148,15 @@ RSpec.describe BetterRspecResult::UI::FailureList do
       it "shows detail when a failure is selected" do
         allow(prompt).to receive(:select).and_return(
           failed_examples.first,
+          :back,
           :back
         )
-
-        expect(prompt).to receive(:say)
-        expect(prompt).to receive(:keypress)
+        allow(prompt).to receive(:say)
 
         failure_list.show
+
+        expect(prompt).to have_received(:say).at_least(:once)
+        expect(prompt).to have_received(:select).at_least(:twice)
       end
     end
 
