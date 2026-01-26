@@ -8,6 +8,11 @@ module BetterRspecResult
     module KeyBindings
       # Custom List class with vim-style j/k navigation and q for quit
       class VimList < TTY::Prompt::List
+        def initialize(*)
+          super
+          @q_pressed = false
+        end
+
         def keypress(event)
           # Handle vim-style navigation and quit
           case event.value
@@ -16,15 +21,22 @@ module BetterRspecResult
           when "k"
             keyup
           when "q"
-            # Find and select the :back option if it exists
-            back_index = choices.find_index { |c| c.value == :back }
-            if back_index
-              @active = back_index
-              keyreturn(event)
-            end
+            # Mark that q was pressed and return
+            @q_pressed = true
+            @done = true
           else
             super
           end
+        end
+
+        def answer
+          # If q was pressed, return :back
+          if @q_pressed
+            back_choice = choices.find { |c| c.value == :back }
+            return back_choice if back_choice
+          end
+          # Otherwise, use default behavior
+          super
         end
       end
 
