@@ -53,7 +53,7 @@ bundle exec rspec --format BetterRspecResult::Formatter
 
 ```bash
 bundle exec rspec
-# => Better RSpec Result saved to: ~/.better-rspec-results/rspec-result-YYYYMMDD-HHMMSS-NNNNNN.json
+# => Better RSpec Result saved to: tmp/.better-rspec-results/rspec-result-YYYYMMDD-HHMMSS-NNNNNN.json
 ```
 
 **重要**: 上記の設定だけでは標準出力が表示されなくなります。標準出力も同時に表示したい場合は、複数のformatterを指定してください：
@@ -139,7 +139,7 @@ bundle exec brr --list
 出力例：
 
 ```
-Found 10 result(s) in ~/.better-rspec-results
+Found 10 result(s) in tmp/.better-rspec-results
 Total size: 125.5 KB
 
 1. FAILED - 2026-01-26T15:30:00+09:00
@@ -168,11 +168,23 @@ bundle exec brr --help     # ヘルプ表示
 
 ## Storage
 
-テスト結果は `~/.better-rspec-results/` ディレクトリに保存されます：
+テスト結果は `tmp/.better-rspec-results/` ディレクトリに保存されます：
 
 - ファイル形式: JSON
 - ファイル名: `rspec-result-YYYYMMDD-HHMMSS-NNNNNN.json`
 - 最大保存件数: 100件（古いものから自動削除）
+- 保存場所: プロジェクトルートの `tmp/.better-rspec-results/`
+  - Railsプロジェクトでは `tmp/` が既に `.gitignore` に含まれています
+  - プロジェクトルートが汚れません
+
+### 保存先のカスタマイズ
+
+環境変数で保存先をカスタマイズできます：
+
+```bash
+export BETTER_RSPEC_RESULTS_DIR=/path/to/custom/dir
+bundle exec rspec
+```
 
 ## Development
 

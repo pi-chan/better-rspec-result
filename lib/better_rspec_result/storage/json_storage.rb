@@ -108,12 +108,16 @@ module BetterRspecResult
 
           # Detect project root and create storage directory there
           def detect_project_storage_dir
+            # Allow override via environment variable
+            return ENV["BETTER_RSPEC_RESULTS_DIR"] if ENV["BETTER_RSPEC_RESULTS_DIR"]
+
             current_dir = Dir.pwd
 
             # Search for git root or use current directory
             project_root = find_git_root(current_dir) || current_dir
 
-            File.join(project_root, DEFAULT_STORAGE_DIRNAME)
+            # Store in tmp directory to avoid cluttering project root
+            File.join(project_root, "tmp", DEFAULT_STORAGE_DIRNAME)
           end
 
           # Find git repository root by searching for .git directory
