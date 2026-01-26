@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "better_rspec_result/ui/cli"
+require "better_rspec_result/ui/viewer"
 require "tmpdir"
 require "fileutils"
 
@@ -98,26 +99,39 @@ RSpec.describe BetterRspecResult::UI::CLI do
       end
     end
 
-    context "with no options" do
-      it "shows latest result" do
+    context "with no options (TUI mode)" do
+      it "launches TUI viewer" do
+        cli = described_class.new([])
+        viewer = instance_double(BetterRspecResult::UI::Viewer)
+
+        allow(BetterRspecResult::UI::Viewer).to receive(:new).and_return(viewer)
+        allow(viewer).to receive(:start)
+
+        expect(viewer).to receive(:start)
+        cli.run
+      end
+    end
+
+    context "with --plain option" do
+      it "shows latest result in plain text" do
         storage.save(sample_result_data)
 
-        expect { described_class.start([]) }.to output(/Better RSpec Result/).to_stdout
+        expect { described_class.start(["--plain"]) }.to output(/Better RSpec Result/).to_stdout
       end
 
       it "shows no results message when empty" do
-        expect { described_class.start([]) }.to output(/No results found/).to_stdout
+        expect { described_class.start(["--plain"]) }.to output(/No results found/).to_stdout
       end
     end
   end
 
-  describe "display output" do
+  describe "display output (--plain mode)" do
     before do
       storage.save(sample_result_data)
     end
 
     it "displays metadata" do
-      output = capture_stdout { described_class.start([]) }
+      output = capture_stdout { described_class.start(["--plain"]) }
       expect(output).to include("Timestamp: 2026-01-26T14:30:15+09:00")
       expect(output).to include("Duration: 2.5s")
       expect(output).to include("Ruby Version: 3.3.0")
@@ -125,7 +139,7 @@ RSpec.describe BetterRspecResult::UI::CLI do
     end
 
     it "displays summary" do
-      output = capture_stdout { described_class.start([]) }
+      output = capture_stdout { described_class.start(["--plain"]) }
       expect(output).to include("Examples: 50")
       expect(output).to include("Failures: 5")
       expect(output).to include("Pending: 2")
@@ -133,7 +147,7 @@ RSpec.describe BetterRspecResult::UI::CLI do
     end
 
     it "displays failed examples" do
-      output = capture_stdout { described_class.start([]) }
+      output = capture_stdout { described_class.start(["--plain"]) }
       expect(output).to include("Failed Examples:")
       expect(output).to include("User validations returns true for valid user")
       expect(output).to include("spec/models/user_spec.rb:15")
@@ -141,7 +155,7 @@ RSpec.describe BetterRspecResult::UI::CLI do
     end
 
     it "shows FAILED status with red color" do
-      output = capture_stdout { described_class.start([]) }
+      output = capture_stdout { described_class.start(["--plain"]) }
       expect(output).to include("\e[31mFAILED\e[0m")
     end
 
@@ -161,13 +175,13 @@ RSpec.describe BetterRspecResult::UI::CLI do
 
       it "shows PASSED status with green color" do
         storage.save(success_result_data)
-        output = capture_stdout { described_class.start([]) }
+        output = capture_stdout { described_class.start(["--plain"]) }
         expect(output).to include("\e[32mPASSED\e[0m")
       end
 
       it "does not show failed examples section" do
         storage.save(success_result_data)
-        output = capture_stdout { described_class.start([]) }
+        output = capture_stdout { described_class.start(["--plain"]) }
         expect(output).not_to include("Failed Examples:")
       end
     end

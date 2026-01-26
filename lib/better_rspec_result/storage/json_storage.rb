@@ -8,13 +8,13 @@ module BetterRspecResult
   module Storage
     # Handles saving and loading test results to/from JSON files
     class JsonStorage
-          DEFAULT_STORAGE_DIR = File.expand_path("~/.better-rspec-results")
+          DEFAULT_STORAGE_DIRNAME = ".better-rspec-results"
           MAX_RESULTS = 100
 
           attr_reader :storage_dir
 
-          def initialize(storage_dir = DEFAULT_STORAGE_DIR)
-            @storage_dir = storage_dir
+          def initialize(storage_dir = nil)
+            @storage_dir = storage_dir || detect_project_storage_dir
             ensure_storage_dir_exists
           end
 
@@ -105,6 +105,28 @@ module BetterRspecResult
           end
 
           private
+
+          # Detect project root and create storage directory there
+          def detect_project_storage_dir
+            current_dir = Dir.pwd
+
+            # Search for git root or use current directory
+            project_root = find_git_root(current_dir) || current_dir
+
+            File.join(project_root, DEFAULT_STORAGE_DIRNAME)
+          end
+
+          # Find git repository root by searching for .git directory
+          def find_git_root(start_dir)
+            dir = start_dir
+
+            while dir != File.dirname(dir)  # Stop at filesystem root
+              return dir if File.directory?(File.join(dir, ".git"))
+              dir = File.dirname(dir)
+            end
+
+            nil
+          end
 
           def ensure_storage_dir_exists
             FileUtils.mkdir_p(storage_dir) unless Dir.exist?(storage_dir)

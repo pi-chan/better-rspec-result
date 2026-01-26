@@ -40,8 +40,9 @@ RSpec.describe BetterRspecResult::Storage::JsonStorage do
     context "with default storage directory" do
       subject(:storage) { described_class.new }
 
-      it "uses default directory" do
-        expect(storage.storage_dir).to eq(described_class::DEFAULT_STORAGE_DIR)
+      it "uses project-based default directory" do
+        # Should detect git root and use .better-rspec-results directory there
+        expect(storage.storage_dir).to include(described_class::DEFAULT_STORAGE_DIRNAME)
       end
     end
   end

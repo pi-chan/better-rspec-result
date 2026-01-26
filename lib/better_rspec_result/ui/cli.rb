@@ -26,16 +26,35 @@ module BetterRspecResult
               clean_results
             elsif @options[:list]
               list_results
-            else
+            elsif @options[:plain]
               show_latest_result
+            else
+              launch_tui
             end
           end
 
           private
 
+          def launch_tui
+            require_relative "viewer"
+            require_relative "components/color_scheme"
+            require_relative "components/formatter"
+            require_relative "key_bindings"
+
+            viewer = Viewer.new(storage: @storage)
+            viewer.start
+          rescue Interrupt
+            puts "\nExiting..."
+            exit(0)
+          end
+
           def parse_options
             OptionParser.new do |opts|
               opts.banner = "Usage: brr [options]"
+
+              opts.on("-p", "--plain", "Show plain text output (legacy mode)") do
+                @options[:plain] = true
+              end
 
               opts.on("-v", "--version", "Show version") do
                 @options[:version] = true
@@ -113,6 +132,7 @@ module BetterRspecResult
             # Metadata
             puts "Timestamp: #{result.timestamp}"
             puts "Duration: #{result.duration.round(2)}s"
+            puts "Command: #{result.metadata['command']}" if result.metadata['command']
             puts "Working Directory: #{result.metadata['working_directory']}"
             puts "Ruby Version: #{result.metadata['ruby_version']}"
             puts "RSpec Version: #{result.metadata['rspec_version']}"
