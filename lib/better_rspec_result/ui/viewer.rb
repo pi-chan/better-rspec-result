@@ -19,12 +19,8 @@ module BetterRspecResult
       end
 
       def start
-        loop do
-          choice = show_main_menu
-          break if choice == :exit
-
-          handle_menu_choice(choice)
-        end
+        # Directly show history list as default view
+        handle_view_history
       rescue Interrupt
         # Gracefully handle Ctrl+C
         nil

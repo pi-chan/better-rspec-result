@@ -53,11 +53,12 @@ module BetterRspecResult
       end
 
       def show_result_detail_menu(result)
-        loop do
-          choice = build_detail_menu(result)
-          break if choice == :back
-
-          handle_detail_choice(choice, result)
+        # Directly show failures if result has failures
+        if result.failed?
+          show_failures(result)
+        else
+          # Show summary for passed results
+          display_summary(result)
         end
       end
 

@@ -190,41 +190,23 @@ RSpec.describe BetterRspecResult::UI::HistoryList do
   describe "#show_result_detail_menu" do
     let(:result) { BetterRspecResult::Storage::Result.new(result_data1) }
 
-    it "displays detail menu options" do
-      expect(prompt).to receive(:select).with(
-        anything,
-        kind_of(Array)
-      ).and_return(:back)
+    it "displays summary for passed results" do
+      allow(prompt).to receive(:say)
+      allow(prompt).to receive(:keypress)
 
       history_list.show_result_detail_menu(result)
+
+      expect(prompt).to have_received(:say)
+      expect(prompt).to have_received(:keypress)
     end
 
-    it "includes View Summary option" do
-      expect(prompt).to receive(:select).and_return(:back)
-
-      history_list.show_result_detail_menu(result)
-    end
-
-    it "includes View Failures option for failed results" do
+    it "shows failures directly for failed results" do
       failed_result = BetterRspecResult::Storage::Result.new(result_data2)
-
-      expect(prompt).to receive(:select) do |_question, choices|
-        choice_values = choices.map { |c| c[:value] }
-        expect(choice_values).to include(:view_failures)
-        :back
-      end
+      allow(prompt).to receive(:select).and_return(:back)
 
       history_list.show_result_detail_menu(failed_result)
-    end
 
-    it "does not include View Failures for passed results" do
-      expect(prompt).to receive(:select) do |_question, choices|
-        choice_values = choices.map { |c| c[:value] }
-        expect(choice_values).not_to include(:view_failures)
-        :back
-      end
-
-      history_list.show_result_detail_menu(result)
+      expect(prompt).to have_received(:select)
     end
   end
 end

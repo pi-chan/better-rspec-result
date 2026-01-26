@@ -70,31 +70,8 @@ RSpec.describe BetterRspecResult::UI::Viewer do
   end
 
   describe "#start" do
-    it "displays main menu" do
-      expect(prompt).to receive(:select).with(
-        /Better RSpec Result/,
-        kind_of(Array)
-      ).and_return(:exit)
-
-      viewer.start
-    end
-
-    it "exits when exit is selected" do
-      allow(prompt).to receive(:select).and_return(:exit)
-
-      expect { viewer.start }.not_to raise_error
-    end
-
-    it "handles view latest option" do
-      allow(prompt).to receive(:select).and_return(:view_latest, :exit)
-
-      expect(viewer).to receive(:handle_view_latest)
-
-      viewer.start
-    end
-
-    it "handles view history option" do
-      allow(prompt).to receive(:select).and_return(:view_history, :exit)
+    it "displays history list directly" do
+      allow(prompt).to receive(:say)
 
       expect(viewer).to receive(:handle_view_history)
 
@@ -102,7 +79,7 @@ RSpec.describe BetterRspecResult::UI::Viewer do
     end
 
     it "handles Interrupt exception gracefully" do
-      allow(prompt).to receive(:select).and_raise(Interrupt)
+      allow(viewer).to receive(:handle_view_history).and_raise(Interrupt)
 
       expect { viewer.start }.not_to raise_error
     end

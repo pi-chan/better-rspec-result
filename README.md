@@ -56,6 +56,22 @@ bundle exec rspec
 # => Better RSpec Result saved to: ~/.better-rspec-results/rspec-result-YYYYMMDD-HHMMSS-NNNNNN.json
 ```
 
+**重要**: 上記の設定だけでは標準出力が表示されなくなります。標準出力も同時に表示したい場合は、複数のformatterを指定してください：
+
+```
+--format progress
+--format BetterRspecResult::Formatter
+```
+
+または、より詳細な出力が必要な場合：
+
+```
+--format documentation
+--format BetterRspecResult::Formatter
+```
+
+これにより、通常のRSpec出力とBetter RSpec Resultの保存が同時に行われます。
+
 #### 方法C: RSpec設定ファイルに追加
 
 `spec/spec_helper.rb` または `spec/rails_helper.rb` に追加：

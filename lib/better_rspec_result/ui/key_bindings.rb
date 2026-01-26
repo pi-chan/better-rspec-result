@@ -6,15 +6,22 @@ module BetterRspecResult
   module UI
     # Provides custom key bindings for TTY::Prompt
     module KeyBindings
-      # Custom List class with vim-style j/k navigation
+      # Custom List class with vim-style j/k navigation and q for quit
       class VimList < TTY::Prompt::List
         def keypress(event)
-          # Handle vim-style navigation
+          # Handle vim-style navigation and quit
           case event.value
           when "j"
             keydown
           when "k"
             keyup
+          when "q"
+            # Find and select the :back option if it exists
+            back_index = choices.find_index { |c| c.value == :back }
+            if back_index
+              @active = back_index
+              trigger(:keyreturn)
+            end
           else
             super
           end
