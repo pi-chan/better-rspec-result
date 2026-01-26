@@ -8,8 +8,8 @@ module BetterRspecResult
     module KeyBindings
       # Custom List class with vim-style j/k navigation and q for quit
       class VimList < TTY::Prompt::List
-        def initialize(*)
-          super
+        def initialize(*args, **kwargs)
+          super(*args, **kwargs)
           @q_pressed = false
         end
 
