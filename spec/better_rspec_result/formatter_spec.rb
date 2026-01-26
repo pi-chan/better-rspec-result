@@ -50,11 +50,9 @@ RSpec.describe BetterRspecResult::Formatter do
 
   describe "#example_failed" do
     let(:exception) do
-      begin
-        raise "Test error"
-      rescue => e
-        e
-      end
+      raise "Test error"
+    rescue StandardError => e
+      e
     end
     let(:example) do
       double(
@@ -177,7 +175,7 @@ RSpec.describe BetterRspecResult::Formatter do
       # Failed example
       exception = begin
         raise "Test error"
-      rescue => e
+      rescue StandardError => e
         e
       end
       failed_example = double(

@@ -30,8 +30,8 @@ module BetterRspecResult
         result = @storage.latest_result
         unless result
           @prompt.say(@color_scheme.dim(
-            "No results found. Run RSpec with --format BetterRspecResult::Formatter"
-          ))
+                        "No results found. Run RSpec with --format BetterRspecResult::Formatter"
+                      ))
           return
         end
 
@@ -59,9 +59,7 @@ module BetterRspecResult
         summary << "Timestamp: #{@formatter.format_timestamp(result.timestamp)}"
         summary << "Duration: #{@formatter.format_duration(result.duration)}"
 
-        if result.metadata["command"]
-          summary << "Command: #{@color_scheme.dim(result.metadata["command"])}"
-        end
+        summary << "Command: #{@color_scheme.dim(result.metadata['command'])}" if result.metadata["command"]
 
         summary << ""
 
@@ -78,9 +76,7 @@ module BetterRspecResult
 
         if result.failed?
           show_failures = @prompt.yes?("View failed examples?")
-          if show_failures
-            show_failure_list(result)
-          end
+          show_failure_list(result) if show_failures
         else
           @prompt.keypress(@color_scheme.dim("Press any key to continue..."))
         end

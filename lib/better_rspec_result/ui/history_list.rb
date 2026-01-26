@@ -48,8 +48,8 @@ module BetterRspecResult
         duration = @formatter.format_duration(result.duration)
 
         "#{status_colored} #{@color_scheme.dim(timestamp)} | " \
-        "#{result.example_count} examples, #{result.failure_count} failures | " \
-        "#{duration}"
+          "#{result.example_count} examples, #{result.failure_count} failures | " \
+          "#{duration}"
       end
 
       def show_result_detail_menu(result)
@@ -90,9 +90,7 @@ module BetterRspecResult
           { name: "View Summary", value: :view_summary }
         ]
 
-        if result.failed?
-          choices << { name: "View Failed Examples", value: :view_failures }
-        end
+        choices << { name: "View Failed Examples", value: :view_failures } if result.failed?
 
         choices << { name: @color_scheme.dim("← Back"), value: :back }
 
@@ -122,9 +120,7 @@ module BetterRspecResult
         summary << "Timestamp: #{@formatter.format_timestamp(result.timestamp)}"
         summary << "Duration: #{@formatter.format_duration(result.duration)}"
 
-        if result.metadata["command"]
-          summary << "Command: #{@color_scheme.dim(result.metadata["command"])}"
-        end
+        summary << "Command: #{@color_scheme.dim(result.metadata['command'])}" if result.metadata["command"]
 
         summary << ""
 

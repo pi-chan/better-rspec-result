@@ -1,5 +1,19 @@
 # frozen_string_literal: true
 
+if ENV["COVERAGE"]
+  require "simplecov"
+  SimpleCov.start do
+    add_filter "/spec/"
+    add_filter "/vendor/"
+
+    add_group "UI", "lib/better_rspec_result/ui"
+    add_group "Storage", "lib/better_rspec_result/storage"
+    add_group "Core", "lib/better_rspec_result"
+
+    minimum_coverage 80
+  end
+end
+
 require "better_rspec_result"
 
 RSpec.configure do |config|

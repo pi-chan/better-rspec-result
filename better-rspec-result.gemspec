@@ -9,13 +9,15 @@ Gem::Specification.new do |spec|
   spec.email = ["hiromasa.ohno.1007@gmail.com"]
 
   spec.summary = "Better RSpec result viewer with TUI"
-  spec.description = "A gem that captures RSpec test results in structured format and provides a TUI for viewing history, failures, and detailed error information"
+  spec.description = "Captures RSpec test results and provides a TUI " \
+                     "for viewing history, failures, and detailed error information"
   spec.homepage = "https://github.com/pi-chan/better-rspec-result"
   spec.required_ruby_version = ">= 3.0.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/pi-chan/better-rspec-result"
   spec.metadata["changelog_uri"] = "https://github.com/pi-chan/better-rspec-result/blob/main/CHANGELOG.md"
+  spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -31,13 +33,19 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
-  spec.add_dependency "rspec-core", "~> 3.0"
-  spec.add_dependency "tty-prompt", "~> 0.23"
-  spec.add_dependency "tty-box", "~> 0.7"
-  spec.add_dependency "tty-screen", "~> 0.8"
-  spec.add_dependency "tty-pager", "~> 0.14"
-  spec.add_dependency "pastel", "~> 0.8"
   spec.add_dependency "clipboard", "~> 1.3"
+  spec.add_dependency "pastel", "~> 0.8"
+  spec.add_dependency "rspec-core", "~> 3.0"
+  spec.add_dependency "tty-box", "~> 0.7"
+  spec.add_dependency "tty-pager", "~> 0.14"
+  spec.add_dependency "tty-prompt", "~> 0.23"
+  spec.add_dependency "tty-screen", "~> 0.8"
+
+  # Development dependencies
+  spec.add_development_dependency "rubocop", "~> 1.50"
+  spec.add_development_dependency "rubocop-performance", "~> 1.16"
+  spec.add_development_dependency "rubocop-rspec", "~> 2.20"
+  spec.add_development_dependency "simplecov", "~> 0.22"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

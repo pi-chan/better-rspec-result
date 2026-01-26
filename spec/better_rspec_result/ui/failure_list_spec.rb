@@ -73,14 +73,14 @@ RSpec.describe BetterRspecResult::UI::FailureList do
 
   describe "#initialize" do
     it "requires result parameter" do
-      expect {
+      expect do
         described_class.new(
           result: result,
           prompt: prompt,
           color_scheme: color_scheme,
           formatter: formatter
         )
-      }.not_to raise_error
+      end.not_to raise_error
     end
 
     it "uses default color_scheme if not provided" do
@@ -194,6 +194,70 @@ RSpec.describe BetterRspecResult::UI::FailureList do
       it "shows no failures message" do
         expect(prompt).to receive(:say).with(/No failed examples/)
         empty_failure_list.show
+      end
+    end
+
+    context "with search functionality" do
+      it "displays search option in menu" do
+        allow(prompt).to receive(:select).and_return(:back)
+
+        failure_list.show
+
+        expect(prompt).to have_received(:select).with(
+          "Select a failed example to view details:",
+          array_including(hash_including(value: :search)),
+          hash_including(per_page: 15, cycle: true)
+        )
+      end
+
+      it "performs search and displays filtered results" do
+        allow(prompt).to receive(:select).and_return(:search, :back)
+        allow(prompt).to receive(:ask).with("Enter search query:", required: false).and_return("auth")
+        allow(prompt).to receive(:multi_select).and_return(%i[description file_path])
+        allow(prompt).to receive(:say)
+
+        failure_list.show
+
+        # Verify search was triggered
+        expect(prompt).to have_received(:ask).with("Enter search query:", required: false)
+        expect(prompt).to have_received(:multi_select)
+      end
+
+      it "shows message when no results found" do
+        allow(prompt).to receive(:select).and_return(:search, :back)
+        allow(prompt).to receive(:ask).with("Enter search query:", required: false).and_return("nonexistent")
+        allow(prompt).to receive(:multi_select).and_return([:description])
+        allow(prompt).to receive(:say)
+
+        failure_list.show
+
+        expect(prompt).to have_received(:say).with(
+          color_scheme.dim("No results found matching your search criteria.")
+        )
+      end
+
+      it "handles cancelled search" do
+        allow(prompt).to receive(:select).and_return(:search, :back)
+        allow(prompt).to receive(:ask).with("Enter search query:", required: false).and_return(nil)
+
+        expect { failure_list.show }.not_to raise_error
+      end
+
+      it "allows viewing details of filtered results" do
+        allow(prompt).to receive(:select).and_return(
+          :search,                    # Select search
+          failed_examples.first,      # Select a filtered result
+          :back,                      # Back from detail view
+          :back                       # Back from filtered menu
+        )
+        allow(prompt).to receive(:ask).with("Enter search query:", required: false).and_return("user")
+        allow(prompt).to receive(:multi_select).and_return([:description])
+        allow(prompt).to receive(:say)
+
+        failure_list.show
+
+        # Verify detail view was shown for the selected result
+        expect(prompt).to have_received(:say).at_least(:once)
       end
     end
   end

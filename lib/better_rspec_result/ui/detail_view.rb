@@ -38,10 +38,10 @@ module BetterRspecResult
         lines << ""
 
         if @example["exception"]
-          lines << "Error Class: #{@color_scheme.failed(@example["exception"]["class"])}"
+          lines << "Error Class: #{@color_scheme.failed(@example['exception']['class'])}"
           lines << ""
           lines << "Message:"
-          lines << "  #{@example["exception"]["message"]}"
+          lines << "  #{@example['exception']['message']}"
           lines << ""
 
           if @example["exception"]["backtrace"]

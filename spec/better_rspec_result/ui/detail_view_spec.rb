@@ -43,12 +43,12 @@ RSpec.describe BetterRspecResult::UI::DetailView do
 
   describe "#initialize" do
     it "requires example parameter" do
-      expect {
+      expect do
         described_class.new(
           example: example,
           prompt: prompt
         )
-      }.not_to raise_error
+      end.not_to raise_error
     end
 
     it "uses default color_scheme if not provided" do

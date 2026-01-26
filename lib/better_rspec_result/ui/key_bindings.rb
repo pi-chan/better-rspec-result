@@ -9,7 +9,7 @@ module BetterRspecResult
       # Custom List class with vim-style j/k navigation and q for quit
       class VimList < TTY::Prompt::List
         def initialize(*args, **kwargs)
-          super(*args, **kwargs)
+          super
           @q_pressed = false
         end
 
@@ -44,8 +44,8 @@ module BetterRspecResult
         prompt = TTY::Prompt.new
 
         # Override select method to use VimList
-        def prompt.select(question, *args, &block)
-          invoke_select(BetterRspecResult::UI::KeyBindings::VimList, question, *args, &block)
+        def prompt.select(question, ...)
+          invoke_select(BetterRspecResult::UI::KeyBindings::VimList, question, ...)
         end
 
         prompt

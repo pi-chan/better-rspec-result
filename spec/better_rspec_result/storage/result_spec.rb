@@ -10,7 +10,7 @@ RSpec.describe BetterRspecResult::Storage::Result do
         "version" => "0.1.0",
         "timestamp" => "2026-01-26T14:30:15+09:00",
         "command" => "bundle exec rspec",
-        "seed" => 12345,
+        "seed" => 12_345,
         "rspec_version" => "3.13.0",
         "ruby_version" => "3.3.0",
         "working_directory" => "/path/to/project"

@@ -78,14 +78,14 @@ RSpec.describe BetterRspecResult::UI::HistoryList do
 
   describe "#initialize" do
     it "requires storage parameter" do
-      expect {
+      expect do
         described_class.new(
           storage: storage,
           prompt: prompt,
           color_scheme: color_scheme,
           formatter: formatter
         )
-      }.not_to raise_error
+      end.not_to raise_error
     end
 
     it "uses default color_scheme if not provided" do

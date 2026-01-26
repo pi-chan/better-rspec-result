@@ -1,0 +1,45 @@
+AllCops:
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'bin/**/*'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'pkg/**/*'
+    - 'exe/**/*'
+
+# メトリクス調整
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+
+Metrics/ClassLength:
+  Max: 200
+  Exclude:
+    - 'lib/better_rspec_result/ui/**/*'
+
+Metrics/MethodLength:
+  Max: 40
+  Exclude:
+    - 'lib/better_rspec_result/ui/**/*'
+
+Metrics/AbcSize:
+  Max: 70
+  Exclude:
+    - 'lib/better_rspec_result/ui/**/*'
+
+Layout/LineLength:
+  Max: 120
+
+# スタイル調整
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+# Gemspec調整
+Gemspec/DevelopmentDependencies:
+  Enabled: false

@@ -114,7 +114,7 @@ RSpec.describe BetterRspecResult::Storage::JsonStorage do
     end
 
     it "returns the most recent result file" do
-      filepath1 = storage.save(sample_result_data)
+      storage.save(sample_result_data)
       sleep 0.1
       filepath2 = storage.save(sample_result_data)
       expect(storage.latest_result_file).to eq(filepath2)
@@ -191,7 +191,7 @@ RSpec.describe BetterRspecResult::Storage::JsonStorage do
 
     it "does nothing when results are under MAX_RESULTS" do
       storage.save(sample_result_data)
-      expect { storage.cleanup_old_results }.not_to change { storage.list_results.size }
+      expect { storage.cleanup_old_results }.not_to(change { storage.list_results.size })
     end
   end
 

@@ -48,19 +48,19 @@ RSpec.describe BetterRspecResult::UI::Viewer do
 
   describe "#initialize" do
     it "requires storage parameter" do
-      expect {
+      expect do
         described_class.new(
           storage: storage,
           prompt: prompt,
           color_scheme: color_scheme
         )
-      }.not_to raise_error
+      end.not_to raise_error
     end
 
     it "uses default prompt if not provided" do
-      expect {
+      expect do
         described_class.new(storage: storage)
-      }.not_to raise_error
+      end.not_to raise_error
     end
 
     it "uses default color_scheme if not provided" do
