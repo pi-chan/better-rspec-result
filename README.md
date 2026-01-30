@@ -1,80 +1,82 @@
 # Better RSpec Result
 
-RSpecのテスト結果を構造化して保存し、TUIで後から閲覧できるgemです。
+A gem that saves RSpec test results in a structured format and provides a TUI to browse them later.
+
+[日本語版 README](README.ja.md)
 
 ## Features
 
-- **構造化された結果保存**: RSpecの実行結果をJSON形式で保存
-- **履歴管理**: 過去のテスト結果を保存・閲覧（最大100件）
-- **失敗テストの詳細表示**: エラーメッセージ、ファイルパス、行番号を表示
-- **カラー出力**: 成功/失敗をカラーで表示
-- **簡単なCLI**: `brr` コマンドで結果を閲覧
+- **Structured Result Storage**: Saves RSpec execution results in JSON format
+- **History Management**: Stores and browses past test results (up to 100 entries)
+- **Detailed Failure Display**: Shows error messages, file paths, and line numbers
+- **Color Output**: Displays pass/fail status in color
+- **Simple CLI**: Browse results with the `brr` command
 
 ## Installation
 
-### 既存プロジェクトに導入
+### Adding to an Existing Project
 
-#### 1. Gemfileに追加
+#### 1. Add to Gemfile
 
-ローカルパスから使用する場合：
+To use from a local path:
 
 ```ruby
 # Gemfile
-gem 'better-rspec-result', path: '/Users/hiromasa/.ghq/gh/pi-chan/better-rspec-result'
+gem 'better-rspec-result', path: '/path/to/better-rspec-result'
 ```
 
-#### 2. bundle install
+#### 2. Run bundle install
 
 ```bash
 bundle install
 ```
 
-これで導入完了です！
+That's it!
 
 ## Usage
 
-### 1. RSpecを実行してテスト結果を保存
+### 1. Run RSpec to Save Test Results
 
-#### 方法A: コマンドラインオプションで指定
+#### Option A: Specify via Command Line
 
 ```bash
 bundle exec rspec --format BetterRspecResult::Formatter
 ```
 
-#### 方法B: .rspecファイルに追加（推奨）
+#### Option B: Add to .rspec File (Recommended)
 
-プロジェクトルートの `.rspec` ファイルに以下を追加：
+Add the following to the `.rspec` file in your project root:
 
 ```
 --format BetterRspecResult::Formatter
 ```
 
-これにより、通常通り `bundle exec rspec` を実行するだけで結果が自動保存されます：
+This allows results to be automatically saved when running `bundle exec rspec`:
 
 ```bash
 bundle exec rspec
 # => Better RSpec Result saved to: tmp/.better-rspec-results/rspec-result-YYYYMMDD-HHMMSS-NNNNNN.json
 ```
 
-**重要**: 上記の設定だけでは標準出力が表示されなくなります。標準出力も同時に表示したい場合は、複数のformatterを指定してください：
+**Important**: With only the above setting, standard output will not be displayed. To display standard output simultaneously, specify multiple formatters:
 
 ```
 --format progress
 --format BetterRspecResult::Formatter
 ```
 
-または、より詳細な出力が必要な場合：
+Or for more detailed output:
 
 ```
 --format documentation
 --format BetterRspecResult::Formatter
 ```
 
-これにより、通常のRSpec出力とBetter RSpec Resultの保存が同時に行われます。
+This allows both normal RSpec output and Better RSpec Result saving to occur simultaneously.
 
-#### 方法C: RSpec設定ファイルに追加
+#### Option C: Add to RSpec Configuration File
 
-`spec/spec_helper.rb` または `spec/rails_helper.rb` に追加：
+Add to `spec/spec_helper.rb` or `spec/rails_helper.rb`:
 
 ```ruby
 require 'better_rspec_result/formatter'
@@ -84,15 +86,15 @@ RSpec.configure do |config|
 end
 ```
 
-### 2. 保存された結果を閲覧
+### 2. Browse Saved Results
 
-#### 最新の結果を表示
+#### Display Latest Result
 
 ```bash
 bundle exec brr
 ```
 
-出力例：
+Example output:
 
 ```
 ================================================================================
@@ -114,7 +116,7 @@ Success Rate: 100.0%
 ================================================================================
 ```
 
-失敗したテストがある場合：
+When there are failed tests:
 
 ```
 ================================================================================
@@ -130,13 +132,13 @@ Failed Examples:
    Error: RSpec::Expectations::ExpectationNotMetError: ...
 ```
 
-#### 履歴を表示
+#### Display History
 
 ```bash
 bundle exec brr --list
 ```
 
-出力例：
+Example output:
 
 ```
 Found 10 result(s) in tmp/.better-rspec-results
@@ -153,33 +155,33 @@ Total size: 125.5 KB
    File: rspec-result-20260126-150000-654321.json
 ```
 
-#### 保存された結果を削除
+#### Delete Saved Results
 
 ```bash
 bundle exec brr --clean
 ```
 
-#### その他のオプション
+#### Other Options
 
 ```bash
-bundle exec brr --version  # バージョン表示
-bundle exec brr --help     # ヘルプ表示
+bundle exec brr --version  # Show version
+bundle exec brr --help     # Show help
 ```
 
 ## Storage
 
-テスト結果は `tmp/.better-rspec-results/` ディレクトリに保存されます：
+Test results are saved in the `tmp/.better-rspec-results/` directory:
 
-- ファイル形式: JSON
-- ファイル名: `rspec-result-YYYYMMDD-HHMMSS-NNNNNN.json`
-- 最大保存件数: 100件（古いものから自動削除）
-- 保存場所: プロジェクトルートの `tmp/.better-rspec-results/`
-  - Railsプロジェクトでは `tmp/` が既に `.gitignore` に含まれています
-  - プロジェクトルートが汚れません
+- File format: JSON
+- File name: `rspec-result-YYYYMMDD-HHMMSS-NNNNNN.json`
+- Maximum entries: 100 (oldest are automatically deleted)
+- Location: `tmp/.better-rspec-results/` in project root
+  - In Rails projects, `tmp/` is already included in `.gitignore`
+  - Keeps your project root clean
 
-### 保存先のカスタマイズ
+### Customizing Storage Location
 
-環境変数で保存先をカスタマイズできます：
+You can customize the storage location with an environment variable:
 
 ```bash
 export BETTER_RSPEC_RESULTS_DIR=/path/to/custom/dir
@@ -196,13 +198,13 @@ cd better-rspec-result
 bundle install
 ```
 
-### Run tests
+### Run Tests
 
 ```bash
 bundle exec rspec
 ```
 
-### Install locally
+### Install Locally
 
 ```bash
 bundle exec rake install
@@ -210,46 +212,46 @@ bundle exec rake install
 
 ## Roadmap
 
-### Phase 1: MVP - 基本的な保存と閲覧 ✅ 完了
+### Phase 1: MVP - Basic Storage and Browsing (Completed)
 
 - [x] RSpec Custom Formatter
-- [x] JSON形式での結果保存
-- [x] 基本的なCLI（`brr` コマンド）
-- [x] 最新結果の表示
-- [x] 履歴一覧表示
-- [x] 失敗テストの詳細表示
+- [x] Result storage in JSON format
+- [x] Basic CLI (`brr` command)
+- [x] Latest result display
+- [x] History list display
+- [x] Detailed failure display
 
-### Phase 2: TUI基本機能 ✅ 完了
+### Phase 2: Basic TUI Features (Completed)
 
-- [x] インタラクティブなTUIビューア
-- [x] j/k/q キーでのナビゲーション
-- [x] 履歴選択と詳細表示
-- [x] 失敗テスト一覧の表示
-- [x] カラフルな表示（tty-prompt）
-- [x] 起動時に直接History一覧を表示
-- [x] 失敗テストを選択時に直接Failure一覧を表示
+- [x] Interactive TUI viewer
+- [x] Navigation with j/k/q keys
+- [x] History selection and detail display
+- [x] Failed test list display
+- [x] Colorful display (tty-prompt)
+- [x] Direct History list display on startup
+- [x] Direct Failure list display when selecting failed tests
 
-### Phase 3: 詳細表示とクリップボード ✅ 完了
+### Phase 3: Detailed Display and Clipboard (Completed)
 
-- [x] エラー詳細表示（tty-box, tty-pager）
-- [x] バックトレース表示
-- [x] 行番号のクリップボードコピー（個別）
-- [x] 一括行番号コピー（全失敗テスト）
+- [x] Error detail display (tty-box, tty-pager)
+- [x] Backtrace display
+- [x] Copy line number to clipboard (individual)
+- [x] Bulk copy line numbers (all failed tests)
 
-### Phase 4: 検索・フィルタリング（予定）
+### Phase 4: Search and Filtering (Completed)
 
-- [ ] ファイルパスでの検索
-- [ ] エラーメッセージでの検索
-- [ ] 説明文での検索
-- [ ] インクリメンタルサーチ
+- [x] Search by file path
+- [x] Search by error message
+- [x] Search by description
+- [x] Incremental search
 
-### Phase 5: 最適化と仕上げ（予定）
+### Phase 5: Optimization and Polish (Completed)
 
-- [ ] パフォーマンス最適化
-- [ ] 大量結果での動作確認
-- [ ] CI/CD設定
-- [ ] RuboCop設定
-- [ ] SimpleCov設定
+- [x] Performance optimization
+- [x] Testing with large result sets
+- [x] CI/CD configuration
+- [x] RuboCop configuration
+- [x] SimpleCov configuration
 
 ## Contributing
 
