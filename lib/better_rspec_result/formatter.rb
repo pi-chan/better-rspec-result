@@ -3,6 +3,7 @@
 require "time"
 require "rspec/core"
 require "rspec/core/formatters/base_formatter"
+require_relative "version"
 require_relative "storage/json_storage"
 
 module BetterRspecResult
