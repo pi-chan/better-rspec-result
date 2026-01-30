@@ -168,8 +168,12 @@ module BetterRspecResult
       # Avoid exposing internal paths or sensitive details in error messages
       error_class = e.class.name.split("::").last
       output.puts "\nFailed to save Better RSpec Result (#{error_class})"
-      output.puts "Set BETTER_RSPEC_DEBUG=1 for details" if ENV["BETTER_RSPEC_DEBUG"]
-      warn "Debug: #{e.message}" if ENV["BETTER_RSPEC_DEBUG"]
+      if ENV["BETTER_RSPEC_DEBUG"]
+        output.puts "Debug: #{e.message}"
+        output.puts e.backtrace&.first(10)&.map { |line| "  #{line}" }&.join("\n")
+      else
+        output.puts "Set BETTER_RSPEC_DEBUG=1 for details"
+      end
     end
   end
 end
