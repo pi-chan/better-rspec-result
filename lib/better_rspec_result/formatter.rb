@@ -16,6 +16,15 @@ module BetterRspecResult
                                      :dump_summary,
                                      :close
 
+    # Sensitive argument patterns that should be masked in saved data
+    SENSITIVE_ARG_PATTERNS = %w[
+      api-key api_key apikey
+      password passwd pwd
+      token secret key
+      credential auth
+      private-key private_key
+    ].freeze
+
     def initialize(output)
       super
       @examples_data = []
@@ -93,12 +102,41 @@ module BetterRspecResult
       {
         "version" => BetterRspecResult::VERSION,
         "timestamp" => @start_time.iso8601,
-        "command" => "#{$PROGRAM_NAME} #{ARGV.join(' ')}",
+        "command" => sanitize_command_line,
         "seed" => RSpec.configuration.seed,
         "rspec_version" => RSpec::Core::Version::STRING,
         "ruby_version" => RUBY_VERSION,
         "working_directory" => Dir.pwd
       }
+    end
+
+    # Sanitize command line arguments to mask sensitive values
+    def sanitize_command_line
+      sanitized_args = ARGV.map do |arg|
+        if sensitive_argument?(arg)
+          mask_sensitive_value(arg)
+        else
+          arg
+        end
+      end
+      "#{$PROGRAM_NAME} #{sanitized_args.join(' ')}"
+    end
+
+    # Check if argument contains sensitive information
+    def sensitive_argument?(arg)
+      SENSITIVE_ARG_PATTERNS.any? do |pattern|
+        arg.downcase.include?(pattern)
+      end
+    end
+
+    # Mask the value part of a sensitive argument
+    def mask_sensitive_value(arg)
+      if arg.include?("=")
+        key, = arg.split("=", 2)
+        "#{key}=[FILTERED]"
+      else
+        "[FILTERED]"
+      end
     end
 
     # Build summary hash
@@ -127,7 +165,11 @@ module BetterRspecResult
 
       output.puts "\nBetter RSpec Result saved to: #{filepath}"
     rescue StandardError => e
-      output.puts "\nFailed to save Better RSpec Result: #{e.message}"
+      # Avoid exposing internal paths or sensitive details in error messages
+      error_class = e.class.name.split("::").last
+      output.puts "\nFailed to save Better RSpec Result (#{error_class})"
+      output.puts "Set BETTER_RSPEC_DEBUG=1 for details" if ENV["BETTER_RSPEC_DEBUG"]
+      warn "Debug: #{e.message}" if ENV["BETTER_RSPEC_DEBUG"]
     end
   end
 end

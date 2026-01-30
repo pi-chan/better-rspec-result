@@ -42,6 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tty-screen", "~> 0.8"
 
   # Development dependencies
+  spec.add_development_dependency "bundler-audit", "~> 0.9"
   spec.add_development_dependency "rubocop", "~> 1.50"
   spec.add_development_dependency "rubocop-performance", "~> 1.16"
   spec.add_development_dependency "rubocop-rspec", "~> 2.20"

@@ -226,4 +226,77 @@ RSpec.describe BetterRspecResult::Formatter do
       expect(data["examples"][2]["status"]).to eq("pending")
     end
   end
+
+  describe "security" do
+    describe "command line sanitization" do
+      let(:start_notification) { double("notification", count: 1) }
+      let(:summary_notification) do
+        double(
+          "notification",
+          duration: 1.0,
+          example_count: 1,
+          failure_count: 0,
+          pending_count: 0,
+          errors_outside_of_examples_count: 0
+        )
+      end
+
+      it "masks sensitive arguments in saved metadata" do
+        original_argv = ARGV.dup
+        begin
+          ARGV.replace(["--api-key=secret123", "--other-flag"])
+
+          formatter.start(start_notification)
+          formatter.dump_summary(summary_notification)
+          formatter.close(double("notification"))
+
+          files = Dir.glob(File.join(temp_dir, "rspec-result-*.json"))
+          data = JSON.parse(File.read(files.first))
+
+          expect(data["metadata"]["command"]).to include("--api-key=[FILTERED]")
+          expect(data["metadata"]["command"]).to include("--other-flag")
+          expect(data["metadata"]["command"]).not_to include("secret123")
+        ensure
+          ARGV.replace(original_argv)
+        end
+      end
+
+      it "masks password arguments" do
+        original_argv = ARGV.dup
+        begin
+          ARGV.replace(["--password=mypassword", "--db-password=dbpass"])
+
+          formatter.start(start_notification)
+          formatter.dump_summary(summary_notification)
+          formatter.close(double("notification"))
+
+          files = Dir.glob(File.join(temp_dir, "rspec-result-*.json"))
+          data = JSON.parse(File.read(files.first))
+
+          expect(data["metadata"]["command"]).not_to include("mypassword")
+          expect(data["metadata"]["command"]).not_to include("dbpass")
+        ensure
+          ARGV.replace(original_argv)
+        end
+      end
+
+      it "masks token arguments" do
+        original_argv = ARGV.dup
+        begin
+          ARGV.replace(["--auth-token=abc123"])
+
+          formatter.start(start_notification)
+          formatter.dump_summary(summary_notification)
+          formatter.close(double("notification"))
+
+          files = Dir.glob(File.join(temp_dir, "rspec-result-*.json"))
+          data = JSON.parse(File.read(files.first))
+
+          expect(data["metadata"]["command"]).not_to include("abc123")
+        ensure
+          ARGV.replace(original_argv)
+        end
+      end
+    end
+  end
 end

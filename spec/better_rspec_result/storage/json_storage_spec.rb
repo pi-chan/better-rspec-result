@@ -146,8 +146,15 @@ RSpec.describe BetterRspecResult::Storage::JsonStorage do
       expect(File.exist?(filepath)).to be false
     end
 
-    it "does nothing if file doesn't exist" do
-      expect { storage.remove("/nonexistent/file.json") }.not_to raise_error
+    it "does nothing if file doesn't exist within storage directory" do
+      nonexistent_file = File.join(storage.storage_dir, "nonexistent-file.json")
+      expect { storage.remove(nonexistent_file) }.not_to raise_error
+    end
+
+    it "raises error for files outside storage directory" do
+      expect { storage.remove("/nonexistent/file.json") }.to raise_error(
+        BetterRspecResult::Storage::JsonStorage::PathTraversalError
+      )
     end
   end
 
@@ -225,6 +232,47 @@ RSpec.describe BetterRspecResult::Storage::JsonStorage do
     it "returns size in GB" do
       allow(storage).to receive(:storage_size).and_return(2 * 1024 * 1024 * 1024)
       expect(storage.storage_size_human).to eq("2.0 GB")
+    end
+  end
+
+  describe "security" do
+    describe "path traversal protection" do
+      it "raises error for forbidden system directories" do
+        expect { described_class.new("/etc/better-rspec") }.to raise_error(
+          BetterRspecResult::Storage::JsonStorage::PathTraversalError,
+          /system directory/
+        )
+      end
+
+      it "raises error when loading files outside storage directory" do
+        storage.save(sample_result_data)
+        expect { storage.load("/etc/passwd") }.to raise_error(
+          BetterRspecResult::Storage::JsonStorage::PathTraversalError
+        )
+      end
+
+      it "raises error when removing files outside storage directory" do
+        storage.save(sample_result_data)
+        expect { storage.remove("/tmp/some-other-file.json") }.to raise_error(
+          BetterRspecResult::Storage::JsonStorage::PathTraversalError
+        )
+      end
+
+      it "raises error for directory traversal attempts" do
+        storage.save(sample_result_data)
+        malicious_path = File.join(storage.storage_dir, "..", "..", "etc", "passwd")
+        expect { storage.load(malicious_path) }.to raise_error(
+          BetterRspecResult::Storage::JsonStorage::PathTraversalError
+        )
+      end
+    end
+
+    describe "file permissions" do
+      it "sets restrictive permissions on saved files" do
+        filepath = storage.save(sample_result_data)
+        file_mode = File.stat(filepath).mode & 0o777
+        expect(file_mode).to eq(0o600)
+      end
     end
   end
 end
